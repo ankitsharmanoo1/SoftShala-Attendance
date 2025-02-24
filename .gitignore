@@ -1,0 +1,41 @@
+# Ignore virtual environment
+venv/
+env/
+__pycache__/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore large libraries
+*.h5
+*.tflite
+*.onnx
+*.pb
+*.pkl
+*.joblib
+*.ckpt
+*.log
+*.tfrecord
+*.index
+*.data*
+*.sqlite
+*.npy
+*.npz
+*.csv  # Optional: If you don’t want to push employee attendance CSVs
+
+# Ignore Python cache and compiled files
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.swp
+
+# Ignore IDE and editor settings
+.vscode/
+.idea/
+
+# Ignore large model files
+*.dll
+*.pyd
+*.dat

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <!-- Tailwind CSS CDN -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen font-roboto p-4">
+
+    <div class="relative w-full max-w-3xl mt-8 mb-8 bg-gradient-to-r from-[#040A19] to-[#222B80] flex flex-col items-center justify-center rounded-lg shadow-lg p-6">
+        <div class="w-full flex justify-center mb-4">
+            <img src="{{ url_for('static', filename='logos/logo.png') }}" alt="logo" class="w-3/4 md:w-[299px] h-auto"/>
+        </div>
+        
+        <div class="w-full max-w-md md:w-[500px] flex flex-col items-center justify-center rounded-lg bg-[#B8B8B880] p-6 md:p-10">
+            <img src="{{ url_for('static', filename='logos/Frame 7.png') }}" alt="image" class="w-24 md:w-[150px] h-auto mb-6"/>
+            
+            <form class="w-full flex flex-col items-center" method="POST" autocomplete="off">
+                <div class="relative w-full max-w-xs md:w-[441px] mb-4">
+                    <img src="{{ url_for('static', filename='logos/mdi_user.png') }}" class="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6"/>
+                    <input type="text" placeholder="Username" autocomplete="off" name="employee_id" class="w-full h-12 rounded-lg pl-12 p-4 text-[#222B80] placeholder-[#222B80] border border-gray-300"/>
+                </div>
+                
+                <div class="relative w-full max-w-xs md:w-[441px] mb-4">
+                    <img src="{{ url_for('static', filename='logos/mdi_password.png') }}" class="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6"/>
+                    <input type="password" id="password" autocomplete="off" name="password" placeholder="Password" class="w-full h-12 rounded-lg pl-12 p-4 text-[#222B80] placeholder-[#222B80] border border-gray-300"/>
+                    <span onclick="togglePassword()" class="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer">👁️</span>
+                </div>
+                
+                <button class="bg-gradient-to-r from-[#040A19] to-[#222B80] text-white w-32 h-12 rounded-lg font-bold mt-4">Log In</button>
+                <!-- <a href="/forgot-password" class="text-sm font-semibold mt-4 hover:underline">Forgot Password?</a> -->
+            </form>
+            
+            <button class="bg-gradient-to-r from-[#040A19] to-[#222B80] text-white w-full max-w-xs md:w-64 h-12 rounded-lg font-bold mt-6" onclick="window.location.href='/employee_check'">Log In as Employee</button>
+        </div>
+    </div>
+    
+    <script>
+        function togglePassword() {
+            let passwordField = document.getElementById("password");
+            passwordField.type = passwordField.type === "password" ? "text" : "password";
+        }
+
+        window.onload = function() {
+            localStorage.clear();
+            sessionStorage.clear();
+            setTimeout(() => {
+                document.querySelector("form").reset();  
+                document.querySelector("[name='employee_id']").value = "";
+                document.querySelector("[name='password']").value = "";
+            }, 10);
+        };
+    </script>
+</body>
+</html>

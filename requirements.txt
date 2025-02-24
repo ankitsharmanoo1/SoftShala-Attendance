@@ -1,0 +1,8 @@
+Flask
+opencv-python
+face-recognition
+numpy
+sqlite3
+mtcnn
+deepface
+tensorflow

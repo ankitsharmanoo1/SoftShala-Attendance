@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Check-In/Out</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+                padding: 20px;
+            }
+            .capture-btn, .submit-btn, .logout-btn {
+                width: 80px;
+                height: 35px;
+                font-size: 14px;
+            }
+            .video-container, .image-preview {
+                width: 100%;
+                height: auto;
+            }
+            #resultGif {
+        display: block;
+        margin: 0 auto;
+    }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center font-roboto   ">
+
+    <div class="relative w-full max-w-lg bg-gradient-to-r from-[#040A19] to-[#222B80] flex flex-col items-center justify-center rounded-lg h-screen shadow-lg p-6 ">
+        <div class="w-full flex justify-center pl-4">
+            <img src="{{ url_for('static', filename='logos/logo.png') }}" alt="logo" class="w-40 h-auto"/>
+        </div>
+        <div class="w-full max-w-md flex flex-col items-center h-screen bg-[#B8B8B880] p-6 rounded-lg">
+            <button class="bg-gradient-to-r from-[#040A19] to-[#222B80] w-[100px] text-white py-2 px-4 rounded-lg font-bold absolute top-2 right-2 logout-btn" id="logout" onclick="window.location.href='/logout'">Log Out</button>
+            <video id="video" class="video-container w-64 h-48 bg-gray-100" autoplay playsinline muted></video>
+            <button class="bg-gradient-to-r from-[#040A19] to-[#222B80] text-white py-2 px-4 rounded-lg font-bold mt-4 capture-btn" id="capture">Capture</button>
+            <div class="image-preview w-64 h-48 bg-gray-100 mt-4" id="previewContainer" style="display: none;">
+                <img id="capturedImage" src="" alt="Captured Image">
+            </div>
+            <input type="hidden" id="captured_image">
+            <button class="bg-gradient-to-r from-[#040A19] to-[#222B80] text-white py-2 px-4 rounded-lg font-bold mt-4 submit-btn" id="submit" style="display: none;">Submit</button>
+            <div id="message" class="mt-4 font-bold text-white"></div>
+            <div id="processingContainer" class="hidden text-center mt-4">
+                <p class="text-white">Processing...</p>
+                <img src="{{ url_for('static', filename='processing.gif') }}" alt="Processing..." width="50" class="flex justify-center">
+            </div>
+            <div id="resultContainer" class="hidden text-center flex justify-center mt-4">
+                <img id="resultGif" src="" alt="Result" width="100" class="flex justify-center ml-40">
+                <p id="resultText" class="font-bold text-black mt-2"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let video = document.getElementById('video');
+        let captureBtn = document.getElementById('capture');
+        let submitBtn = document.getElementById('submit');
+        let capturedImage = document.getElementById('capturedImage');
+        let previewContainer = document.getElementById('previewContainer');
+        let capturedImageInput = document.getElementById('captured_image');
+        let messageDiv = document.getElementById('message');
+        let processingContainer = document.getElementById('processingContainer');
+        let resultContainer = document.getElementById('resultContainer');
+        let resultGif = document.getElementById('resultGif');
+        let resultText = document.getElementById('resultText');
+        
+        function startCamera() {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+                .then(stream => { video.srcObject = stream; })
+                .catch(error => { alert("Camera access denied. Please allow camera permissions."); });
+        }
+        window.onload = startCamera;
+
+        captureBtn.addEventListener('click', function () {
+            let canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            let ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            let imageDataUrl = canvas.toDataURL('image/png');
+
+            if (!imageDataUrl) {
+                alert("Error: No image captured. Please try again.");
+                return;
+            }
+            capturedImage.src = imageDataUrl;
+            previewContainer.style.display = "block";
+            capturedImageInput.value = imageDataUrl;
+            submitBtn.style.display = "block";
+        });
+
+        submitBtn.addEventListener('click', function () {
+            let imageData = capturedImageInput.value;
+            if (!imageData) {
+                alert("No image captured! Please capture an image first.");
+                return;
+            }
+            captureBtn.style.display = "none";
+            submitBtn.style.display = "none";
+            previewContainer.style.display = "block";
+            video.style.display = "none";
+            processingContainer.style.display = "block";
+            
+            fetch('/employee_check', {
+                method: 'POST',
+                body: JSON.stringify({ captured_image: imageData }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                processingContainer.style.display = "none";
+                resultContainer.style.display = "block";
+                resultGif.src = data.message.includes("Thanks") ? "{{ url_for('static', filename='recognized.gif') }}" : "{{ url_for('static', filename='not_recognized.gif') }}";
+                resultText.innerHTML = data.message.includes("Thanks") ? data.message : "Recognition Failed";
+                setTimeout(() => { location.reload(); }, 4000);
+            })
+            .catch(error => console.error("Error submitting image:", error));
+        });
+    </script>
+</body>
+</html>
